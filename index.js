@@ -22,6 +22,31 @@ async function run() {
         const productCollection = client
             .db("jantrik-app")
             .collection("product");
+        const userCollection = client.db("jantrik-app").collection("user");
+
+        app.get("/products", async (req, res) => {
+            const query = {};
+            const products = await productCollection.find(query).toArray();
+            res.send(products);
+        });
+        app.put("/user/:email", async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user,
+            };
+            const result = await userCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+            const token = jwt.sign({ email: email }, process.env.JWT_TOKEN, {
+                expiresIn: "1d",
+            });
+            res.send({ result, token });
+        });
     } finally {
     }
 }
