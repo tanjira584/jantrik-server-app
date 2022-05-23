@@ -22,12 +22,6 @@ async function run() {
         const productCollection = client
             .db("jantrik-app")
             .collection("product");
-
-        app.get("/products", async (req, res) => {
-            const query = {};
-            const products = await productCollection.find(query).toArray();
-            res.send(products);
-        });
     } finally {
     }
 }
