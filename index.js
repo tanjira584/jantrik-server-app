@@ -23,6 +23,13 @@ async function run() {
             .db("jantrik-app")
             .collection("product");
         const userCollection = client.db("jantrik-app").collection("user");
+        const orderCollection = client.db("jantrik-app").collection("order");
+
+        app.post("/orders", async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.send(result);
+        });
 
         app.get("/products", async (req, res) => {
             const query = {};
