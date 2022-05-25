@@ -26,12 +26,19 @@ async function run() {
         const orderCollection = client.db("jantrik-app").collection("order");
         const reviewCollection = client.db("jantrik-app").collection("review");
 
+        /*--------Order Place Post Controller-----*/
         app.post("/orders", async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
             res.send(result);
         });
 
+        /*-------All Order Get Controller----*/
+        app.get("/orders", async (req, res) => {
+            const query = {};
+            const orders = await orderCollection.find(query).toArray();
+            res.send(orders);
+        });
         app.get("/products", async (req, res) => {
             const query = {};
             const products = await productCollection.find(query).toArray();
