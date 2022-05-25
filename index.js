@@ -24,6 +24,7 @@ async function run() {
             .collection("product");
         const userCollection = client.db("jantrik-app").collection("user");
         const orderCollection = client.db("jantrik-app").collection("order");
+        const reviewCollection = client.db("jantrik-app").collection("review");
 
         app.post("/orders", async (req, res) => {
             const order = req.body;
@@ -50,6 +51,12 @@ async function run() {
             res.send(result);
         });
 
+        /*-----Single Review Post Controller-----*/
+        app.post("/reviews", async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
+            res.send(review);
+        });
         /*-------Create User Post Controller-------*/
         app.put("/user/:email", async (req, res) => {
             const email = req.params.email;
