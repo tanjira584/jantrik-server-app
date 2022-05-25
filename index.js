@@ -36,12 +36,21 @@ async function run() {
             const products = await productCollection.find(query).toArray();
             res.send(products);
         });
+
+        /*-----Add New Post-------*/
+        app.post("/products", async (req, res) => {
+            const product = req.body;
+            const result = await productCollection.insertOne(product);
+            res.send(result);
+        });
         app.get("/product/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await productCollection.findOne(query);
             res.send(result);
         });
+
+        /*-------Create User Post Controller-------*/
         app.put("/user/:email", async (req, res) => {
             const email = req.params.email;
             const user = req.body;
