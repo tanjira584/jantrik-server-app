@@ -57,6 +57,13 @@ async function run() {
             const result = await reviewCollection.insertOne(review);
             res.send(review);
         });
+
+        /*------All User Get <Controller-----*/
+        app.get("/users", async (req, res) => {
+            const query = {};
+            const result = await userCollection.find(query).toArray();
+            res.send(result);
+        });
         /*-------Create User Post Controller-------*/
         app.put("/user/:email", async (req, res) => {
             const email = req.params.email;
