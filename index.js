@@ -1,10 +1,13 @@
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const Stripe = require("stripe");
+
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 const app = express();
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 app.use(cors());
 app.use(express.json());
@@ -25,6 +28,20 @@ async function run() {
         const userCollection = client.db("jantrik-app").collection("user");
         const orderCollection = client.db("jantrik-app").collection("order");
         const reviewCollection = client.db("jantrik-app").collection("review");
+
+        /*--------Get Client Secret Key-----*/
+        app.post("/client-payment-intent", async (req, res) => {
+            const service = req.body;
+            const price = service.price;
+            const amount = price * 100;
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: "usd",
+                payment_method_types: ["card"],
+            });
+            res.send({ clientSecret: paymentIntent.client_secret });
+        });
 
         /*--------Order Place Post Controller-----*/
         app.post("/orders", async (req, res) => {
