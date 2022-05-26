@@ -39,6 +39,13 @@ async function run() {
             const orders = await orderCollection.find(query).toArray();
             res.send(orders);
         });
+        /*------Single Order Get Controller----*/
+        app.get("/order/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await orderCollection.findOne(query);
+            res.send(result);
+        });
         app.get("/products", async (req, res) => {
             const query = {};
             const products = await productCollection.find(query).toArray();
