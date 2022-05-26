@@ -28,6 +28,9 @@ async function run() {
         const userCollection = client.db("jantrik-app").collection("user");
         const orderCollection = client.db("jantrik-app").collection("order");
         const reviewCollection = client.db("jantrik-app").collection("review");
+        const paymentCollection = client
+            .db("jantrik-app")
+            .collection("payment");
 
         /*--------Get Client Secret Key-----*/
         app.post("/client-payment-intent", async (req, res) => {
@@ -61,6 +64,21 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await orderCollection.findOne(query);
+            res.send(result);
+        });
+        /*------Single Order Update Controller-----*/
+        app.patch("/order/:id", async (req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: payment.transactionId,
+                },
+            };
+            const paid = await paymentCollection.insertOne(payment);
+            const result = await orderCollection.updateOne(filter, updateDoc);
             res.send(result);
         });
         app.get("/products", async (req, res) => {
