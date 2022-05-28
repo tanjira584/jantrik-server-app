@@ -166,6 +166,13 @@ async function run() {
             const result = await productCollection.deleteOne(query);
             res.send(result);
         });
+        /*---------User Delete Controller------*/
+        app.delete("/user/:id", verifyJwt, verifyAdmin, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await userCollection.deleteOne(query);
+            res.send(result);
+        });
         /*-------All Review Get Controoler----*/
         app.get("/reviews", async (req, res) => {
             const result = await reviewCollection.find().toArray();
