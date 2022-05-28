@@ -60,7 +60,7 @@ async function run() {
             }
         }
         /*--------Get Client Secret Key-----*/
-        app.post("/client-payment-intent", async (req, res) => {
+        app.post("/client-payment-intent", verifyJwt, async (req, res) => {
             const service = req.body;
             const price = service.price;
             const amount = price * 100;
@@ -74,7 +74,7 @@ async function run() {
         });
 
         /*--------Order Place Post Controller-----*/
-        app.post("/orders", async (req, res) => {
+        app.post("/orders", verifyJwt, async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
             res.send(result);
@@ -82,19 +82,26 @@ async function run() {
 
         /*-------All Order Get Controller----*/
         app.get("/orders", verifyJwt, async (req, res) => {
+            const email = req.decoded.email;
+            const query = { email: email };
+            const orders = await orderCollection.find(query).toArray();
+            res.send(orders);
+        });
+        /*-------All Order Get Controller----*/
+        app.get("/orders/admin", verifyJwt, verifyAdmin, async (req, res) => {
             const query = {};
             const orders = await orderCollection.find(query).toArray();
             res.send(orders);
         });
         /*------Single Order Get Controller----*/
-        app.get("/order/:id", async (req, res) => {
+        app.get("/order/:id", verifyJwt, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await orderCollection.findOne(query);
             res.send(result);
         });
         /*------Single Order Update Controller-----*/
-        app.patch("/order/:id", async (req, res) => {
+        app.patch("/order/:id", verifyJwt, async (req, res) => {
             const id = req.params.id;
             const payment = req.body;
             console.log(payment);
@@ -109,7 +116,7 @@ async function run() {
             res.send(result);
         });
         /*---------Order Delete Controller-----*/
-        app.delete("/order/:id", async (req, res) => {
+        app.delete("/order/:id", verifyJwt, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await orderCollection.deleteOne(query);
@@ -124,20 +131,20 @@ async function run() {
         });
 
         /*-----Single Product Post Controller-------*/
-        app.post("/products", async (req, res) => {
+        app.post("/products", verifyJwt, verifyAdmin, async (req, res) => {
             const product = req.body;
             const result = await productCollection.insertOne(product);
             res.send(result);
         });
         /*--------Single Product Get Controller------*/
-        app.get("/product/:id", async (req, res) => {
+        app.get("/product/:id", verifyJwt, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await productCollection.findOne(query);
             res.send(result);
         });
         /*--------Single Product PATCH Controller------*/
-        app.patch("/product/:id", async (req, res) => {
+        app.patch("/product/:id", verifyJwt, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
             const newStock = req.body.stock;
@@ -153,7 +160,7 @@ async function run() {
             res.send(result);
         });
         /*---------Product Delete Controller------*/
-        app.delete("/product/:id", async (req, res) => {
+        app.delete("/product/:id", verifyJwt, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await productCollection.deleteOne(query);
@@ -165,30 +172,36 @@ async function run() {
             res.send(result.reverse());
         });
         /*-----Single Review Post Controller-----*/
-        app.post("/reviews", async (req, res) => {
+        app.post("/reviews", verifyJwt, async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review);
             res.send(review);
         });
 
         /*------All User Get <Controller-----*/
-        app.get("/users", async (req, res) => {
+        app.get("/users", verifyJwt, verifyAdmin, async (req, res) => {
             const query = {};
             const result = await userCollection.find(query).toArray();
+            res.send(result);
+        });
+        app.get("/user", verifyJwt, async (req, res) => {
+            const email = req.decoded.email;
+            const query = { email: email };
+            const result = await userCollection.findOne(query);
             res.send(result);
         });
         /*-----------Single User Patch Controller-------*/
         app.put(
             "/user/admin/:email",
             verifyJwt,
-            verifyAdmin,
+
             async (req, res) => {
                 const email = req.params.email;
-
+                const user = req.body;
                 const filter = { email: email };
                 const updateDoc = {
                     $set: {
-                        role: "admin",
+                        ...user,
                     },
                 };
 
