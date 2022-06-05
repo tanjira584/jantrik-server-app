@@ -81,6 +81,13 @@ async function run() {
         });
 
         /*-------All Order Get Controller----*/
+        app.get("/orders", verifyJwt, async (req, res) => {
+            const email = req.decoded.email;
+            const query = { email: email };
+            const orders = await orderCollection.find(query).toArray();
+            res.send(orders);
+        });
+        /*-------All Order Get Controller----*/
         app.get("/orders/admin", verifyJwt, verifyAdmin, async (req, res) => {
             const query = {};
             const orders = await orderCollection.find(query).toArray();
@@ -130,7 +137,7 @@ async function run() {
             res.send(result);
         });
         /*--------Single Product Get Controller------*/
-        app.get("/product/:id", verifyJwt, async (req, res) => {
+        app.get("/product/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await productCollection.findOne(query);
